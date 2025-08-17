@@ -1,23 +1,44 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Simulador Estratégia Tablet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idle Universe Miner</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 </head>
 <body>
-    <h1>Simulador Estratégia Tablet</h1>
-    <div id="game-container"></div>
-    <div id="ui-panel">
-        <p>Ouro: <span id="gold">0</span></p>
-        <p>Madeira: <span id="wood">0</span></p>
-        <p>Tropas: <span id="troops">0</span></p>
-        <button id="collect-resources">Coletar Recursos</button>
-        <button id="train-troops">Treinar Tropas (20 Ouro)</button>
-        <button id="upgrade-building">Upgr. Construção (50 Madeira)</button>
+
+    <div id="game-container">
+        <h1>Idle Universe Miner</h1>
+
+        <div id="resource-section">
+            <h2>Recursos</h2>
+            <p>Cobre: <span id="cobre-count">0</span></p>
+            <p>Cobre por segundo: <span id="cobre-per-second">0</span></p>
+        </div>
+
+        <div id="action-section">
+            <button id="mine-cobre-btn">Minerar Cobre</button>
+        </div>
+
+        <div id="upgrades-section">
+            <h2>Upgrades</h2>
+            <div class="upgrade">
+                <h3>Melhorar Coleta</h3>
+                <p>Aumenta o cobre por clique.</p>
+                <p>Nível: <span id="click-upgrade-level">1</span></p>
+                <button id="buy-click-upgrade-btn">Comprar (Custo: <span id="click-upgrade-cost">10</span> Cobre)</button>
+            </div>
+            <div class="upgrade">
+                <h3>Drone de Mineração</h3>
+                <p>Gera cobre automaticamente.</p>
+                <p>Nível: <span id="idle-upgrade-level">0</span></p>
+                <button id="buy-idle-upgrade-btn">Comprar (Custo: <span id="idle-upgrade-cost">50</span> Cobre)</button>
+            </div>
+        </div>
+
     </div>
-    <script src="map.js"></script>
-    <script src="game.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
