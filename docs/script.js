@@ -1,198 +1,149 @@
-// --- FUNÇÃO DE FORMATAÇÃO DE NÚMEROS ---
-function formatNumber(num) {
-    if (num < 1000) return num.toFixed(0);
-    const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp"];
-    const i = Math.floor(Math.log10(num) / 3);
-    const value = (num / Math.pow(1000, i));
-    return value.toFixed(2) + suffixes[i];
-}
-
-// --- ESTADO INICIAL DO JOGO ---
-function getInitialGameState() {
-    return {
-        resources: {
-            cobre: 0,
-            ferro: 0,
+document.addEventListener('DOMContentLoaded', () => {
+    // Estado inicial do jogo
+    const gameState = {
+        gold: 1000,
+        food: 500,
+        troops: 10,
+        castleLevel: 1,
+        farm: {
+            level: 1,
+            cost: 200,
+            production: 5 // Comida por segundo
         },
-        // Controla se um recurso foi desbloqueado
-        unlocked: {
-            ferro: false
-        },
-        upgrades: {
-            cobre: {
-                click: { level: 1, cost: 10, baseCost: 10, costMultiplier: 1.5, power: 1 },
-                idle: { level: 0, cost: 50, baseCost: 50, costMultiplier: 1.8, production: 0, baseProduction: 1 }
-            },
-            ferro: {
-                click: { level: 1, cost: 25, baseCost: 25, costMultiplier: 1.6, power: 1 },
-                idle: { level: 0, cost: 100, baseCost: 100, costMultiplier: 2.0, production: 0, baseProduction: 1 }
-            }
+        barracks: {
+            level: 1,
+            cost: 250,
+            trainTimeModifier: 1.0 // 100% do tempo normal
         }
     };
-}
 
-let gameState = getInitialGameState();
+    // Elementos da UI
+    const ui = {
+        gold: document.getElementById('gold-resource'),
+        food: document.getElementById('food-resource'),
+        troops: document.getElementById('troops-resource'),
+        farmLevel: document.getElementById('farm-level'),
+        farmCost: document.getElementById('farm-cost'),
+        foodProduction: document.getElementById('food-production'),
+        barracksLevel: document.getElementById('barracks-level'),
+        barracksCost: document.getElementById('barracks-cost'),
+        upgradeFarmBtn: document.getElementById('upgrade-farm-btn'),
+        upgradeBarracksBtn: document.getElementById('upgrade-barracks-btn'),
+        trainAmountInput: document.getElementById('train-amount'),
+        trainTroopsBtn: document.getElementById('train-troops-btn'),
+        battleBtn: document.getElementById('battle-btn'),
+        battleReport: document.getElementById('battle-report'),
+        battleResult: document.getElementById('battle-result'),
+        closeReportBtn: document.getElementById('close-report-btn'),
+    };
 
+    // Atualiza a UI com os dados do gameState
+    function updateUI() {
+        ui.gold.textContent = `🪙 Ouro: ${Math.floor(gameState.gold)}`;
+        ui.food.textContent = `🍎 Comida: ${Math.floor(gameState.food)}`;
+        ui.troops.textContent = `⚔️ Tropas: ${gameState.troops}`;
+        
+        ui.farmLevel.textContent = gameState.farm.level;
+        ui.farmCost.textContent = gameState.farm.cost;
+        ui.foodProduction.textContent = gameState.farm.production;
+        
+        ui.barracksLevel.textContent = gameState.barracks.level;
+        ui.barracksCost.textContent = gameState.barracks.cost;
 
-// --- ELEMENTOS DO HTML (DOM) ---
-const dom = {
-    cobre: {
-        count: document.getElementById('cobre-count'),
-        perSecond: document.getElementById('cobre-per-second'),
-        mineBtn: document.getElementById('mine-cobre-btn'),
-        click: {
-            level: document.getElementById('cobre-click-level'),
-            cost: document.getElementById('cobre-click-cost'),
-            btn: document.getElementById('buy-cobre-click-upgrade')
-        },
-        idle: {
-            level: document.getElementById('cobre-idle-level'),
-            cost: document.getElementById('cobre-idle-cost'),
-            btn: document.getElementById('buy-cobre-idle-upgrade')
-        }
-    },
-    ferro: {
-        count: document.getElementById('ferro-count'),
-        perSecond: document.getElementById('ferro-per-second'),
-        mineBtn: document.getElementById('mine-ferro-btn'),
-        container: document.getElementById('resource-section-ferro'),
-        click: {
-            level: document.getElementById('ferro-click-level'),
-            cost: document.getElementById('ferro-click-cost'),
-            btn: document.getElementById('buy-ferro-click-upgrade')
-        },
-        idle: {
-            level: document.getElementById('ferro-idle-level'),
-            cost: document.getElementById('ferro-idle-cost'),
-            btn: document.getElementById('buy-ferro-idle-upgrade')
-        }
-    },
-    saveBtn: document.getElementById('save-btn')
-};
-
-
-// --- FUNÇÕES DE LÓGICA DO JOGO ---
-
-function mineResource(resourceName) {
-    // Desbloqueia o Ferro se tiver cobre suficiente
-    if (resourceName === 'ferro' && !gameState.unlocked.ferro && gameState.resources.cobre >= 100) {
-        gameState.resources.cobre -= 100;
-        gameState.unlocked.ferro = true;
-        console.log("Ferro desbloqueado!");
+        // Desabilita botões se não houver recursos suficientes
+        ui.upgradeFarmBtn.disabled = gameState.gold < gameState.farm.cost;
+        ui.upgradeBarracksBtn.disabled = gameState.gold < gameState.barracks.cost;
     }
+
+    // Lógica para evoluir a fazenda
+    ui.upgradeFarmBtn.addEventListener('click', () => {
+        if (gameState.gold >= gameState.farm.cost) {
+            gameState.gold -= gameState.farm.cost;
+            gameState.farm.level++;
+            gameState.farm.cost = Math.floor(gameState.farm.cost * 1.8);
+            gameState.farm.production = Math.floor(gameState.farm.production * 1.5);
+            updateUI();
+        }
+    });
+
+    // Lógica para evoluir o quartel
+    ui.upgradeBarracksBtn.addEventListener('click', () => {
+        if (gameState.gold >= gameState.barracks.cost) {
+            gameState.gold -= gameState.barracks.cost;
+            gameState.barracks.level++;
+            gameState.barracks.cost = Math.floor(gameState.barracks.cost * 2.0);
+            gameState.barracks.trainTimeModifier *= 0.9; // Reduz o tempo de treino
+            updateUI();
+        }
+    });
+
+    // Lógica para treinar tropas
+    ui.trainTroopsBtn.addEventListener('click', () => {
+        const amount = parseInt(ui.trainAmountInput.value);
+        if (isNaN(amount) || amount <= 0) return;
+
+        const goldCost = amount * 50;
+        const foodCost = amount * 25;
+
+        if (gameState.gold >= goldCost && gameState.food >= foodCost) {
+            gameState.gold -= goldCost;
+            gameState.food -= foodCost;
+            gameState.troops += amount;
+            // Em um jogo complexo, haveria um tempo de treino
+            updateUI();
+        } else {
+            alert('Recursos insuficientes para treinar tropas!');
+        }
+    });
     
-    if (resourceName === 'ferro' && !gameState.unlocked.ferro) return;
-
-    const clickPower = gameState.upgrades[resourceName].click.power;
-    gameState.resources[resourceName] += clickPower;
-    updateDisplay();
-}
-
-function buyUpgrade(resourceName, upgradeType) {
-    const upgrade = gameState.upgrades[resourceName][upgradeType];
-    const resourceAmount = gameState.resources[resourceName];
-
-    if (resourceAmount >= upgrade.cost) {
-        gameState.resources[resourceName] -= upgrade.cost;
-        upgrade.level++;
-
-        if (upgradeType === 'click') {
-            upgrade.power++;
-            upgrade.cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.level - 1));
-        } else if (upgradeType === 'idle') {
-            upgrade.production += upgrade.baseProduction;
-            upgrade.cost = Math.floor(upgrade.baseCost * Math.pow(upgrade.costMultiplier, upgrade.level));
+    // Lógica da batalha
+    ui.battleBtn.addEventListener('click', () => {
+        if (gameState.troops <= 0) {
+            alert("Você não tem tropas para batalhar!");
+            return;
         }
-        updateDisplay();
-    }
-}
 
-// --- ATUALIZAÇÃO DA TELA ---
+        const troopsSent = gameState.troops;
+        let troopsLost = 0;
+        let goldGained = 0;
+        let foodGained = 0;
 
-function updateDisplay() {
-    // Atualiza Cobre
-    dom.cobre.count.textContent = formatNumber(gameState.resources.cobre);
-    dom.cobre.perSecond.textContent = formatNumber(gameState.upgrades.cobre.idle.production);
-    dom.cobre.click.level.textContent = gameState.upgrades.cobre.click.level;
-    dom.cobre.click.cost.textContent = formatNumber(gameState.upgrades.cobre.click.cost);
-    dom.cobre.idle.level.textContent = gameState.upgrades.cobre.idle.level;
-    dom.cobre.idle.cost.textContent = formatNumber(gameState.upgrades.cobre.idle.cost);
+        // Simulação de batalha simples
+        const battlePower = troopsSent * (Math.random() * 0.5 + 0.7); // Fator de sorte
+        const enemyPower = troopsSent * (Math.random() * 0.8 + 0.5);
 
-    // Atualiza Ferro (se desbloqueado)
-    if (gameState.unlocked.ferro) {
-        dom.ferro.container.style.display = 'block'; // Mostra a seção de ferro
-        dom.ferro.mineBtn.textContent = 'Minerar Ferro';
-        dom.ferro.count.textContent = formatNumber(gameState.resources.ferro);
-        dom.ferro.perSecond.textContent = formatNumber(gameState.upgrades.ferro.idle.production);
-        dom.ferro.click.level.textContent = gameState.upgrades.ferro.click.level;
-        dom.ferro.click.cost.textContent = formatNumber(gameState.upgrades.ferro.click.cost) + ' Ferro';
-        dom.ferro.idle.level.textContent = gameState.upgrades.ferro.idle.level;
-        dom.ferro.idle.cost.textContent = formatNumber(gameState.upgrades.ferro.idle.cost) + ' Ferro';
-    } else {
-        dom.ferro.container.style.display = 'none'; // Esconde a seção de ferro
-    }
+        let resultText = '';
+        if (battlePower > enemyPower) { // Vitória
+            troopsLost = Math.floor(troopsSent * (Math.random() * 0.15)); // Perde até 15% das tropas
+            goldGained = Math.floor(troopsSent * 20 * (Math.random() * 0.5 + 0.8));
+            foodGained = Math.floor(troopsSent * 15 * (Math.random() * 0.5 + 0.8));
+            resultText = `VITÓRIA! Você derrotou os bárbaros! <br><br> Tropas Perdidas: ${troopsLost} <br> Ouro Saqueado: ${goldGained} <br> Comida Saqueada: ${foodGained}`;
+        } else { // Derrota
+            troopsLost = Math.floor(troopsSent * (Math.random() * 0.4 + 0.3)); // Perde de 30% a 70%
+            resultText = `DERROTA! Suas tropas foram superadas. <br><br> Tropas Perdidas: ${troopsLost}`;
+        }
+        
+        gameState.troops -= troopsLost;
+        gameState.gold += goldGained;
+        gameState.food += foodGained;
 
+        ui.battleResult.innerHTML = resultText;
+        ui.battleReport.classList.remove('hidden');
+        updateUI();
+    });
 
-    // Lógica para habilitar/desabilitar botões
-    dom.cobre.click.btn.disabled = gameState.resources.cobre < gameState.upgrades.cobre.click.cost;
-    dom.cobre.idle.btn.disabled = gameState.resources.cobre < gameState.upgrades.cobre.idle.cost;
-    
-    if (gameState.unlocked.ferro) {
-        dom.ferro.mineBtn.disabled = false;
-        dom.ferro.click.btn.disabled = gameState.resources.ferro < gameState.upgrades.ferro.click.cost;
-        dom.ferro.idle.btn.disabled = gameState.resources.ferro < gameState.upgrades.ferro.idle.cost;
-    } else {
-        dom.ferro.mineBtn.disabled = gameState.resources.cobre < 100;
-    }
-}
+    ui.closeReportBtn.addEventListener('click', () => {
+        ui.battleReport.classList.add('hidden');
+    });
 
 
-// --- LOOP PRINCIPAL E SAVE/LOAD ---
+    // Loop principal do jogo (game loop) para gerar recursos
+    setInterval(() => {
+        gameState.food += gameState.farm.production;
+        gameState.gold += 1; // Produção base do castelo
+        updateUI();
+    }, 1000);
 
-function gameLoop() {
-    gameState.resources.cobre += gameState.upgrades.cobre.idle.production;
-    if (gameState.unlocked.ferro) {
-        gameState.resources.ferro += gameState.upgrades.ferro.idle.production;
-    }
-    updateDisplay();
-}
-
-function saveGame() {
-    localStorage.setItem('idleMinerSave', JSON.stringify(gameState));
-    console.log("Jogo salvo!");
-}
-
-function loadGame() {
-    const savedGame = localStorage.getItem('idleMinerSave');
-    if (savedGame) {
-        // Usamos Object.assign para fundir o save com o estado inicial.
-        // Isso evita que o jogo quebre se adicionarmos novas variáveis em uma atualização.
-        const loadedState = JSON.parse(savedGame);
-        gameState = Object.assign(getInitialGameState(), loadedState);
-    }
-    console.log("Jogo carregado!");
-}
-
-
-// --- INICIALIZAÇÃO DO JOGO ---
-
-// Adiciona os "escutadores" de eventos nos botões
-dom.cobre.mineBtn.addEventListener('click', () => mineResource('cobre'));
-dom.ferro.mineBtn.addEventListener('click', () => mineResource('ferro'));
-
-dom.cobre.click.btn.addEventListener('click', () => buyUpgrade('cobre', 'click'));
-dom.cobre.idle.btn.addEventListener('click', () => buyUpgrade('cobre', 'idle'));
-dom.ferro.click.btn.addEventListener('click', () => buyUpgrade('ferro', 'click'));
-dom.ferro.idle.btn.addEventListener('click', () => buyUpgrade('ferro', 'idle'));
-
-dom.saveBtn.addEventListener('click', saveGame); // Botão de save manual
-
-// Carrega o jogo
-loadGame();
-
-// Inicia os loops
-setInterval(gameLoop, 1000); // Loop de produção a cada segundo
-setInterval(saveGame, 10000); // Salva automaticamente a cada 10 segundos
-
-// Atualiza a tela pela primeira vez
-updateDisplay();
+    // Inicia o jogo
+    updateUI();
+});
