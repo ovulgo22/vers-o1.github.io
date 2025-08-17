@@ -2,66 +2,63 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Idle Universe Miner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Mini Kingdoms</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="game-container">
-        <h1>Idle Universe Miner</h1>
+        <header>
+            <h1>Mini Kingdoms</h1>
+            <div id="resources">
+                <span id="gold-resource">🪙 Ouro: 1000</span>
+                <span id="food-resource">🍎 Comida: 500</span>
+                <span id="troops-resource">⚔️ Tropas: 10</span>
+            </div>
+        </header>
 
-        <div class="resource-container">
-            <div id="resource-section-cobre">
-                <h2>Recursos de Cobre</h2>
-                <p>Cobre: <span id="cobre-count">0</span></p>
-                <p>Cobre por segundo: <span id="cobre-per-second">0</span></p>
-                <button id="mine-cobre-btn" class="mine-btn">Minerar Cobre</button>
+        <main id="main-view">
+            <div id="buildings">
+                <h2>Meu Castelo</h2>
+                <div class="building" id="castle">
+                    <h3>Castelo (Nível <span id="castle-level">1</span>)</h3>
+                    <p>O coração do seu reino.</p>
+                </div>
+                <div class="building" id="farm">
+                    <h3>Fazenda (Nível <span id="farm-level">1</span>)</h3>
+                    <p>Produz <span id="food-production">5</span> de comida por segundo.</p>
+                    <button id="upgrade-farm-btn">Evoluir (Custo: <span id="farm-cost">200</span> Ouro)</button>
+                </div>
+                <div class="building" id="barracks">
+                    <h3>Quartel (Nível <span id="barracks-level">1</span>)</h3>
+                    <p>Permite treinar tropas mais rápido.</p>
+                    <button id="upgrade-barracks-btn">Evoluir (Custo: <span id="barracks-cost">250</span> Ouro)</button>
+                </div>
             </div>
-            <div id="resource-section-ferro">
-                <h2>Recursos de Ferro</h2>
-                <p>Ferro: <span id="ferro-count">0</span></p>
-                <p>Ferro por segundo: <span id="ferro-per-second">0</span></p>
-                <button id="mine-ferro-btn" class="mine-btn">Minerar Ferro (Requer 100 Cobre)</button>
+
+            <div id="actions">
+                <h2>Ações</h2>
+                <div class="action-card">
+                    <h3>Treinar Tropas</h3>
+                    <p>Custo por tropa: 50 Ouro, 25 Comida</p>
+                    <input type="number" id="train-amount" value="10" min="1">
+                    <button id="train-troops-btn">Treinar</button>
+                </div>
+                 <div class="action-card">
+                    <h3>Batalha</h3>
+                    <p>Envie suas tropas para saquear bárbaros e ganhar recompensas!</p>
+                    <button id="battle-btn">Atacar Bárbaros</button>
+                </div>
             </div>
+        </main>
+        
+        <div id="battle-report" class="hidden">
+            <h2>Relatório de Batalha</h2>
+            <p id="battle-result"></p>
+            <button id="close-report-btn">Fechar</button>
         </div>
 
-        <div id="upgrades-section">
-            <h2>Upgrades</h2>
-            <div class="upgrade-column">
-                <h3>Cobre</h3>
-                <div class="upgrade">
-                    <h4>Melhorar Coleta</h4>
-                    <p>Aumenta o cobre por clique.</p>
-                    <p>Nível: <span id="cobre-click-level">1</span></p>
-                    <button id="buy-cobre-click-upgrade">Comprar (Custo: <span id="cobre-click-cost">10</span> Cobre)</button>
-                </div>
-                <div class="upgrade">
-                    <h4>Drone de Cobre</h4>
-                    <p>Gera cobre automaticamente.</p>
-                    <p>Nível: <span id="cobre-idle-level">0</span></p>
-                    <button id="buy-cobre-idle-upgrade">Comprar (Custo: <span id="cobre-idle-cost">50</span> Cobre)</button>
-                </div>
-            </div>
-            <div class="upgrade-column">
-                <h3>Ferro</h3>
-                <div class="upgrade">
-                    <h4>Broca de Ferro</h4>
-                    <p>Aumenta o ferro por clique.</p>
-                    <p>Nível: <span id="ferro-click-level">1</span></p>
-                    <button id="buy-ferro-click-upgrade">Comprar (Custo: <span id="ferro-click-cost">25</span> Ferro)</button>
-                </div>
-                <div class="upgrade">
-                    <h4>Drone de Ferro</h4>
-                    <p>Gera ferro automaticamente.</p>
-                    <p>Nível: <span id="ferro-idle-level">0</span></p>
-                    <button id="buy-ferro-idle-upgrade">Comprar (Custo: <span id="ferro-idle-cost">100</span> Ferro)</button>
-                </div>
-            </div>
-        </div>
-        <button id="save-btn">Salvar Jogo Manualmente</button>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
