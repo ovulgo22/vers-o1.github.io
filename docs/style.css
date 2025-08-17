@@ -4,14 +4,15 @@ body {
     color: #e0e0e0;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    align-items: flex-start; /* Alinha no topo para jogos maiores */
+    padding-top: 20px;
+    min-height: 100vh;
     margin: 0;
 }
 
 #game-container {
-    width: 80%;
-    max-width: 600px;
+    width: 90%;
+    max-width: 800px; /* Aumenta a largura máxima */
     background-color: #1e1e1e;
     border-radius: 10px;
     padding: 20px;
@@ -19,42 +20,61 @@ body {
     border: 1px solid rgba(0, 255, 255, 0.3);
 }
 
-h1, h2 {
+h1, h2, h3, h4 {
     text-align: center;
     color: #00ffff; /* Cyan */
 }
 
-#resource-section, #action-section, .upgrade {
+.resource-container {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+#resource-section-cobre, #resource-section-ferro, .upgrade {
     background-color: #2a2a2a;
     padding: 15px;
     margin-bottom: 15px;
     border-radius: 8px;
     border: 1px solid #333;
+    flex: 1; /* Faz as seções ocuparem espaço igual */
 }
 
-#mine-cobre-btn, button {
+#upgrades-section {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.upgrade-column {
+    flex: 1;
+}
+
+.mine-btn, button {
     width: 100%;
     padding: 12px;
     font-size: 16px;
-    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 10px;
 }
 
-#mine-cobre-btn {
-    background-color: #28a745; /* Green */
-}
+#mine-cobre-btn { background-color: #CD7F32; } /* Cor de Cobre */
+#mine-ferro-btn { background-color: #a9a9a9; } /* Cor de Ferro */
+#save-btn { background-color: #007bff; margin-top: 20px; }
 
-button:hover {
+
+button:hover:not(:disabled) {
     filter: brightness(1.2);
 }
 
 button:disabled {
     background-color: #555;
     cursor: not-allowed;
+    color: #888;
 }
 
 span {
