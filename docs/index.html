@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mini Kingdoms</title>
+    <title>Mini Kingdoms v3.0</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,52 +13,74 @@
             <div id="resources">
                 <span id="gold-resource">🪙 Ouro: 1000</span>
                 <span id="food-resource">🍎 Comida: 500</span>
-                <span id="troops-resource">⚔️ Tropas: 10</span>
+                <span id="wood-resource">🪵 Madeira: 500</span>
+                <span id="stone-resource">🪨 Pedra: 500</span>
+            </div>
+            <div id="troops-display">
+                <span id="infantry-resource">🛡️ Infantaria: 0</span>
+                <span id="cavalry-resource">🐎 Cavalaria: 0</span>
+                <span id="archer-resource">🏹 Arqueiros: 0</span>
             </div>
         </header>
 
+        <div id="quest-container">
+            <h3>Missão Atual:</h3>
+            <p id="quest-description">...</p>
+            <div id="quest-progress-bar"><div id="quest-progress"></div></div>
+        </div>
+
         <main id="main-view">
-            <div id="buildings">
-                <h2>Meu Castelo</h2>
-                <div class="building" id="castle">
-                    <h3>Castelo (Nível <span id="castle-level">1</span>)</h3>
-                    <p>O coração do seu reino.</p>
-                </div>
-                <div class="building" id="farm">
-                    <h3>Fazenda (Nível <span id="farm-level">1</span>)</h3>
-                    <p>Produz <span id="food-production">5</span> de comida por segundo.</p>
-                    <button id="upgrade-farm-btn">Evoluir (Custo: <span id="farm-cost">200</span> Ouro)</button>
-                </div>
-                <div class="building" id="barracks">
-                    <h3>Quartel (Nível <span id="barracks-level">1</span>)</h3>
-                    <p>Permite treinar tropas mais rápido.</p>
-                    <button id="upgrade-barracks-btn">Evoluir (Custo: <span id="barracks-cost">250</span> Ouro)</button>
-                </div>
+            <div id="buildings-grid">
+                <div class="building" id="farm"><h3>Fazenda (Nível <span id="farm-level">1</span>)</h3><p>Produz <span id="food-production">5</span> comida/s.</p><button id="upgrade-farm-btn">Evoluir</button></div>
+                <div class="building" id="sawmill"><h3>Serraria (Nível <span id="sawmill-level">1</span>)</h3><p>Produz <span id="wood-production">5</span> madeira/s.</p><button id="upgrade-sawmill-btn">Evoluir</button></div>
+                <div class="building" id="quarry"><h3>Pedreira (Nível <span id="quarry-level">1</span>)</h3><p>Produz <span id="stone-production">3</span> pedra/s.</p><button id="upgrade-quarry-btn">Evoluir</button></div>
+                <div class="building" id="warehouse"><h3>Armazém (Nível <span id="warehouse-level">1</span>)</h3><p>Capacidade: <span id="storage-capacity">10000</span></p><button id="upgrade-warehouse-btn">Evoluir</button></div>
+                
+                <div class="building" id="barracks"><h3>Quartel (Nível <span id="barracks-level">1</span>)</h3><p>Treine suas tropas aqui.</p><button id="open-train-modal-btn">Treinar Tropas</button></div>
+                <div class="building" id="wall"><h3>Muralha (Nível <span id="wall-level">0</span>)</h3><p>Defesa: <span id="wall-defense">0</span>%</p><button id="upgrade-wall-btn">Evoluir</button></div>
+                <div class="building" id="academy"><h3>Academia (Nível <span id="academy-level">0</span>)</h3><p>Pesquise novas tecnologias.</p><button id="open-research-modal-btn">Pesquisar</button></div>
+                <div class="building" id="heroes-hall"><h3>Salão dos Heróis (Nível <span id="heroes-hall-level">0</span>)</h3><p>Herói Ativo: <span id="hero-name">Nenhum</span></p><button id="upgrade-heroes-hall-btn">Evoluir</button></div>
             </div>
 
             <div id="actions">
-                <h2>Ações</h2>
                 <div class="action-card">
-                    <h3>Treinar Tropas</h3>
-                    <p>Custo por tropa: 50 Ouro, 25 Comida</p>
-                    <input type="number" id="train-amount" value="10" min="1">
-                    <button id="train-troops-btn">Treinar</button>
-                </div>
-                 <div class="action-card">
-                    <h3>Batalha</h3>
-                    <p>Envie suas tropas para saquear bárbaros e ganhar recompensas!</p>
+                    <h3>Ataque Tático</h3>
+                    <p>Infantaria vence Cavalaria<br>Cavalaria vence Arqueiros<br>Arqueiros vencem Infantaria</p>
+                    <div class="army-input">🛡️ <input type="number" id="infantry-to-send" value="0" min="0"></div>
+                    <div class="army-input">🐎 <input type="number" id="cavalry-to-send" value="0" min="0"></div>
+                    <div class="army-input">🏹 <input type="number" id="archer-to-send" value="0" min="0"></div>
                     <button id="battle-btn">Atacar Bárbaros</button>
                 </div>
             </div>
         </main>
-        
-        <div id="battle-report" class="hidden">
-            <h2>Relatório de Batalha</h2>
-            <p id="battle-result"></p>
-            <button id="close-report-btn">Fechar</button>
-        </div>
-
     </div>
+
+    <div id="modal-backdrop" class="hidden"></div>
+    
+    <div id="research-modal" class="modal hidden">
+        <h2>Árvore de Pesquisa</h2>
+        <div id="research-tree"></div>
+        <button class="close-modal-btn">Fechar</button>
+    </div>
+
+    <div id="train-modal" class="modal hidden">
+        <h2>Treinar Tropas</h2>
+        <div id="train-options"></div>
+        <button class="close-modal-btn">Fechar</button>
+    </div>
+    
+    <div id="battle-report-modal" class="modal hidden">
+        <h2>Relatório de Batalha</h2>
+        <div id="battle-result"></div>
+        <button class="close-modal-btn">Fechar</button>
+    </div>
+
+    <div id="event-modal" class="modal hidden">
+        <h2 id="event-title"></h2>
+        <p id="event-description"></p>
+        <button class="close-modal-btn">Ok</button>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
