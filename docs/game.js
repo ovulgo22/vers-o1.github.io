@@ -1,65 +1,117 @@
 let config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: window.innerWidth*0.9,
+    height: window.innerHeight*0.7,
     parent: 'game-container',
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    scene: { preload, create, update }
 };
 
 let game = new Phaser.Game(config);
 let ctxCanvas;
+let player = {gold: 100, wood: 100, troops: 5};
 
-function preload() {
-    // Aqui você pode carregar sprites, imagens e ícones
-}
+function preload(){}
 
-function create() {
-    // Criar canvas para o mapa
+function create(){
     ctxCanvas = this.add.graphics();
     generateMap();
     drawMap();
     loadPlayerData();
     setupUI();
+
+    // Batalhas automáticas a cada 5 segundos
+    setInterval(autoBattle, 5000);
 }
 
-function update() {
-    // Atualizações do jogo (recursos, combate, animações)
-}
+function update(){}
 
-function drawMap() {
+function drawMap(){
     ctxCanvas.clear();
-    for(let y = 0; y < MAP_SIZE; y++) {
-        for(let x = 0; x < MAP_SIZE; x++) {
-            let color;
-            switch(map[y][x]) {
-                case 0: color = 0xa3d3a2; break;
-                case 1: color = 0xf1c40f; break;
-                case 2: color = 0xe74c3c; break;
+    renderMap(ctxCanvas);
+}
+
+function setupUI(){
+    updateUI();
+
+    document.getElementById('collect-resources').onclick = () => {
+        player.gold += Math.floor(Math.random()*50 + 20);
+        player.wood += Math.floor(Math.random()*30 + 10);
+        updateUI();
+        savePlayerData();
+    };
+
+    document.getElementById('train-troops').onclick = () => {
+        if(player.gold >= 20){
+            player.gold -= 20;
+            player.troops += 1;
+            updateUI();
+            savePlayerData();
+        } else alert("Ouro insuficiente!");
+    };
+
+    document.getElementById('upgrade-building').onclick = () => {
+        if(player.wood >= 50){
+            player.wood -= 50;
+            upgradeRandomBuilding();
+            updateUI();
+            drawMap();
+            savePlayerData();
+        } else alert("Madeira insuficiente!");
+    };
+}
+
+function updateUI(){
+    document.getElementById('gold').innerText = player.gold;
+    document.getElementById('wood').innerText = player.wood;
+    document.getElementById('troops').innerText = player.troops;
+}
+
+// Batalhas automáticas
+function autoBattle(){
+    for(let y=0; y<MAP_SIZE; y++){
+        for(let x=0; x<MAP_SIZE; x++){
+            if(map[y][x].type === 2){ // Construção NPC
+                if(player.troops > 0){
+                    player.troops -= 1; // batalha
+                    player.gold += 10 * map[y][x].level;
+                    player.wood += 5 * map[y][x].level;
+                    map[y][x].level -= 1; // destrói/conquista
+                    if(map[y][x].level <= 0){
+                        map[y][x].type = 1; // vira recurso
+                        map[y][x].level = 0;
+                    }
+                }
             }
-            ctxCanvas.fillStyle(color, 1);
-            ctxCanvas.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE-2, TILE_SIZE-2);
         }
     }
+    updateUI();
+    drawMap();
 }
 
-function setupUI() {
-    // Painel de recursos, botões de ações e upgrades
-}
-
-function savePlayerData() {
-    let playerData = {resources: 100, troops: 5};
-    localStorage.setItem('playerData', JSON.stringify(playerData));
-}
-
-function loadPlayerData() {
-    let data = localStorage.getItem('playerData');
-    if(data) {
-        return JSON.parse(data);
-    } else {
-        savePlayerData();
+// Upgrade de construção aleatória do jogador
+function upgradeRandomBuilding(){
+    let buildings = [];
+    for(let y=0; y<MAP_SIZE; y++){
+        for(let x=0; x<MAP_SIZE; x++){
+            if(map[y][x].type === 2) buildings.push({x,y});
+        }
     }
+    if(buildings.length === 0) return;
+    let b = buildings[Math.floor(Math.random()*buildings.length)];
+    map[b.y][b.x].level += 1;
+}
+
+// Salvar e carregar dados
+function savePlayerData(){
+    localStorage.setItem('playerData', JSON.stringify(player));
+}
+
+function loadPlayerData(){
+    let data = localStorage.getItem('playerData');
+    if(data) player = JSON.parse(data);
+    updateUI();
 }
